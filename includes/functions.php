@@ -33,7 +33,9 @@ function media_url(?string $path): string
     if (preg_match('~^(https?:)?//~i', $path)) {
         return $path;
     }
-    return url($path);
+    // Add the file's change time, so browsers fetch a replaced file instead of an old cached copy.
+    $full = ROOT . '/' . ltrim($path, '/');
+    return url($path) . (is_file($full) ? '?v=' . filemtime($full) : '');
 }
 
 function absolute_url(string $path = ''): string
