@@ -37,7 +37,7 @@ require __DIR__ . '/includes/header.php';
     <?php if ($projects): ?><div><?= section_head('Projects') ?><div class="grid grid-4"><?php foreach ($projects as $p) echo project_card($p); ?></div></div><?php endif; ?>
     <?php if ($research): ?><div><?= section_head('Research') ?><div class="grid grid-3"><?php foreach ($research as $r) echo research_card($r); ?></div></div><?php endif; ?>
     <?php if ($downloads): ?><div><?= section_head('Downloads') ?><div class="card pad"><ul class="file-list"><?php foreach ($downloads as $d): ?>
-      <li class="file-row"><span class="file-icon <?= file_icon_class($d['file_path']) ?>"><?= e(strtoupper(file_ext($d['file_path']))) ?></span><span class="file-meta"><strong><?= e($d['title']) ?></strong><small><?= e($d['description']) ?></small></span><a class="icon-btn sm" href="<?= e(url('download.php?id=' . (int) $d['id'])) ?>" aria-label="Download"><?= icon('download') ?></a></li>
+      <li class="file-row"><span class="file-icon <?= file_icon_class($d['file_path']) ?>"><?= e(file_badge($d['file_path'])) ?></span><span class="file-meta"><strong><?= e($d['title']) ?></strong><small><?= e($d['description']) ?></small></span><a class="icon-btn sm" href="<?= e(url('download.php?id=' . (int) $d['id'])) ?>" aria-label="Download"><?= icon('download') ?></a></li>
     <?php endforeach; ?></ul></div></div><?php endif; ?>
     <?php if ($q !== '' && $total === 0): ?><div class="empty-state"><p class="muted">Nothing found. Try a different keyword, like &ldquo;robot&rdquo; or &ldquo;ESP32&rdquo;.</p></div><?php endif; ?>
   </div>

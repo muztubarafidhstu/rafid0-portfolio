@@ -110,6 +110,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Document links (Google Drive etc.): "Title | URL" or just URL per line
+        foreach (lines($_POST['doc_links'] ?? '') as $line) {
+            $parts = array_map('trim', explode('|', $line, 2));
+            $url = clean_link(count($parts) === 2 ? $parts[1] : $parts[0]);
+            if ($url === '') {
+                $warnings[] = 'Skipped a document link that does not look right: ' . $line;
+                continue;
+            }
+            $title = count($parts) === 2 ? $parts[0] : 'Document';
+            db()->prepare('INSERT INTO project_media(project_id, type, file_path, title, sort_order) VALUES(?,?,?,?,?)')
+                ->execute([$id, 'document', $url, $title, $next++]);
+            $added++;
+        }
+
         foreach ($warnings as $w) {
             flash('warning', $w);
         }
@@ -176,6 +190,7 @@ admin_header($id ? 'Edit Project' : 'Add New Project', 'projects');
       <p class="muted small">You can upload: <span class="chip">Images (JPG, PNG, WEBP)</span> <span class="chip">Videos (MP4)</span> <span class="chip">Documents (PDF, DOCX, XLSX)</span> <span class="chip">Files (ZIP, STEP, STL)</span></p>
       <div class="preview-grid" data-previews></div>
       <label class="field mt-1">Video links (YouTube / Vimeo) <small class="hint">One per line — great for large videos</small><textarea name="video_links" rows="2" placeholder="https://www.youtube.com/watch?v=..."></textarea></label>
+      <label class="field mt-1">Document / file links (Google Drive, Dropbox…) <small class="hint">One per line as <code>Title | link</code> — for big files like datasets, CAD models, source code</small><textarea name="doc_links" rows="2" placeholder="3D Models (STEP) | https://drive.google.com/file/d/…"></textarea></label>
 
       <?php if ($media): ?>
         <h3 class="card-heading sub">Current files (<?= count($media) ?>)</h3>
@@ -185,7 +200,7 @@ admin_header($id ? 'Edit Project' : 'Add New Project', 'projects');
               <div class="media-thumb">
                 <?php if ($m['type'] === 'image'): ?><img src="<?= e(media_url($m['file_path'])) ?>" alt="">
                 <?php elseif ($m['type'] === 'video'): ?><span class="file-icon zip"><?= icon('play') ?></span>
-                <?php else: ?><span class="file-icon <?= file_icon_class($m['file_path']) ?>"><?= e(strtoupper(file_ext($m['file_path']))) ?></span><?php endif; ?>
+                <?php else: ?><span class="file-icon <?= file_icon_class($m['file_path']) ?>"><?= e(file_badge($m['file_path'])) ?></span><?php endif; ?>
               </div>
               <input type="text" name="media_title[<?= (int) $m['id'] ?>]" value="<?= e($m['title']) ?>" placeholder="Title" aria-label="Title">
               <div class="media-meta">

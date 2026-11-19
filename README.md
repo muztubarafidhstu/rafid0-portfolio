@@ -66,6 +66,7 @@ Follow the **"Getting started checklist"** on the Dashboard:
 - Experience: `Period | Job title | Company | Description`
 - Blank line = new paragraph, `**bold**` = **bold**.
 - Big videos: upload them to YouTube and paste the link (faster website, no size limit).
+- Big files (datasets, CAD models, ZIPs): put them on **Google Drive** (Share → "Anyone with the link" → Copy link) and paste the link in **Downloads → "…or paste a link instead"**, or in a project's **"Document / file links"** box as `Title | link`.
 
 ★ **Featured** projects (first 4) and research (first 3) are shown on the home page.
 

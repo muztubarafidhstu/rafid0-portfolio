@@ -22,8 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $title = trim((string) ($_POST['new_title'] ?? ''));
         $files = files_list('file');
-        if (!$files) {
-            flash('error', 'Please choose a file to upload.');
+        $link = clean_link((string) ($_POST['new_link'] ?? ''));
+        if (trim((string) ($_POST['new_link'] ?? '')) !== '' && $link === '') {
+            flash('error', 'That link does not look right. Copy the full share link (starting with https://).');
+        } elseif ($link !== '') {
+            $t = $title !== '' ? $title : 'Download';
+            db()->prepare('INSERT INTO downloads(title, description, category, file_path, file_size) VALUES(?,?,?,?,0)')
+                ->execute([$t, trim((string) ($_POST['new_description'] ?? '')), trim((string) ($_POST['new_category'] ?? '')), $link]);
+            flash('success', '"' . $t . '" link is now on the Downloads page.');
+        } elseif (!$files) {
+            flash('error', 'Please choose a file to upload, or paste a link.');
         }
         foreach ($files as $f) {
             try {
@@ -49,10 +57,11 @@ admin_header('Downloads', 'downloads');
   <h2 class="card-heading">Add a downloadable file</h2>
   <div class="form">
     <label class="dropzone small-zone" data-dropzone>
-      <input type="file" name="file[]" multiple required>
+      <input type="file" name="file[]" multiple>
       <?= icon('cloud-upload') ?><span><strong>Choose file(s)</strong> — PDF, DOCX, XLSX, ZIP, STEP, STL, code…</span>
     </label>
     <div class="preview-grid" data-previews></div>
+    <label class="field">…or paste a link instead <small class="hint">Google Drive, Dropbox or OneDrive share link. Best for big files (datasets, CAD, videos). In Google Drive: Share → "Anyone with the link" → Copy link</small><input type="url" name="new_link" placeholder="https://drive.google.com/file/d/…"></label>
     <div class="form-row two">
       <label class="field">Title <small class="hint">Blank = use file name</small><input type="text" name="new_title" placeholder="e.g. Source Code (ZIP)"></label>
       <label class="field">Category<input type="text" name="new_category" list="dcats" placeholder="e.g. Datasets, Source Code, Papers"><datalist id="dcats"><?php foreach ($cats as $c): ?><option value="<?= e($c) ?>"><?php endforeach; ?></datalist></label>
@@ -74,7 +83,7 @@ admin_header('Downloads', 'downloads');
       <?php foreach ($items as $d): ?>
         <tr>
           <td><input class="order-input" type="number" name="order[<?= (int) $d['id'] ?>]" value="<?= (int) $d['sort_order'] ?>" aria-label="Order"></td>
-          <td><a href="<?= e(media_url($d['file_path'])) ?>" target="_blank" class="file-cell"><span class="file-icon <?= file_icon_class($d['file_path']) ?>"><?= e(strtoupper(file_ext($d['file_path']))) ?></span><small class="muted"><?= e(human_size((int) $d['file_size'])) ?></small></a></td>
+          <td><a href="<?= e(media_url($d['file_path'])) ?>" target="_blank" rel="noopener" class="file-cell"><span class="file-icon <?= file_icon_class($d['file_path']) ?>"><?= e(file_badge($d['file_path'])) ?></span><small class="muted"><?= is_external_url($d['file_path']) ? 'Link' : e(human_size((int) $d['file_size'])) ?></small></a></td>
           <td><input class="table-input" type="text" name="title[<?= (int) $d['id'] ?>]" value="<?= e($d['title']) ?>" aria-label="Title"></td>
           <td><input class="table-input" type="text" name="category[<?= (int) $d['id'] ?>]" value="<?= e($d['category']) ?>" list="dcats" aria-label="Category"></td>
           <td><input class="table-input" type="text" name="description[<?= (int) $d['id'] ?>]" value="<?= e($d['description']) ?>" aria-label="Description"></td>

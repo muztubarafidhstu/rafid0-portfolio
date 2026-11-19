@@ -15,7 +15,7 @@
 | Requirement | Needed | How to check |
 |---|---|---|
 | PHP | **8.0+** (8.1–8.3 recommended) | Hosting panel → PHP version |
-| PHP extensions | `pdo_sqlite`, `sqlite3`, `mbstring`, `fileinfo`, `gd` (gd optional: resizes large photos) | Panel → PHP extensions, or the test script in §9 |
+| PHP extensions | `pdo_sqlite`, `sqlite3`, `mbstring`, `fileinfo`, `gd` (gd optional: resizes large photos) | Panel → PHP extensions, or the test script in §10 |
 | Web server | Apache or LiteSpeed (uses `.htaccess`). Nginx works with `nginx.conf.example` | Ask host / check panel |
 | SSL | Free Let's Encrypt / AutoSSL | Panel → SSL |
 | Disk | 10 GB+ recommended (photos, PDFs, videos) | Plan details |
@@ -154,14 +154,24 @@ Steps:
 
 ---
 
-## 8. Nginx hosts only
+## 8. Free hosting (InfinityFree or similar)
+
+The owner may use a **free PHP host** instead of paid hosting. The site works the same way; check these points with the host's current limits:
+- **SQLite:** confirm `pdo_sqlite` with the `check.php` test in §10 before anything else.
+- **File size limit** (often about 10 MB per file): big videos go on **YouTube**, big files on **Google Drive**. The admin supports pasting links for both (Downloads → "paste a link instead"; Project → "Document / file links" and "Video links").
+- **`mail()` is often disabled:** contact messages are still saved in Admin → Messages.
+- **`.user.ini` / `php_value` may be ignored:** upload limits are whatever the host allows. If `.htaccess` causes a 500 error, remove the `<IfModule mod_php…>` blocks.
+- **DNS:** point rafid0.com to the host's nameservers in Spaceship. Enable the host's free SSL, then turn on the HTTPS redirect (§3.3).
+- **Inode/file-count limits:** keep uploads reasonable. Photos are resized automatically on upload.
+
+## 9. Nginx hosts only
 
 If the host runs Nginx without Apache, `.htaccess` is ignored. Apply the rules in `nginx.conf.example` (blocks `data/`, `includes/`, dotfiles; disables PHP in `uploads/`; robots/sitemap rewrites).
 Even without those rules, the database has a random 24-character file name and uploads only accept whitelisted extensions (no `.php`, `.html`, `.svg`, `.js`). Apply the rules anyway.
 
 ---
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 | Problem | Fix |
 |---|---|
@@ -171,7 +181,7 @@ Even without those rules, the database has a random 24-character file name and u
 | Uploads fail / "too large" | Raise `upload_max_filesize` and `post_max_size`; or upload fewer files at once; use YouTube links for large videos |
 | Redirect loop after enabling HTTPS | Cloudflare set to *Flexible*: change it to *Full*. Or the host terminates SSL: the rule already checks `X-Forwarded-Proto` |
 | Admin locked out ("Too many failed attempts") | Wait 15 minutes (5 failures per IP / 15 min) |
-| Forgot admin password | See §10 |
+| Forgot admin password | See §11 |
 | PHP errors | Logged to `data/error.log` (not public). Display is off |
 
 **Quick environment test:** create `public_html/check.php` with
@@ -180,7 +190,7 @@ Open it in the browser, then **delete it**.
 
 ---
 
-## 10. Admin password reset (developer only)
+## 11. Admin password reset (developer only)
 
 Create `public_html/reset.php` temporarily:
 ```php
@@ -194,7 +204,7 @@ Open it once, **delete it immediately**, log in, and change the password in *Sit
 
 ---
 
-## 11. Technical reference
+## 12. Technical reference
 
 - **Routing:** one PHP file per page; no URL rewriting needed. `BASE_URL` is auto-detected, so the site also works in a sub-folder (but the `ErrorDocument 404 /404.php` line in `.htaccess` assumes the domain root).
 - **Database:** SQLite, file `data/site-<random>.sqlite`. Tables: `settings` (key/value: all site texts, profile, CV path, admin credentials), `projects`, `project_media` (image/video/document per project), `research`, `gallery`, `downloads`, `messages`, `login_attempts`. Schema in `includes/db.php` (`PRAGMA user_version`).
@@ -204,7 +214,7 @@ Open it once, **delete it immediately**, log in, and change the password in *Sit
 
 ---
 
-## 12. Handover to the owner
+## 13. Handover to the owner
 
 Give the owner:
 1. The admin URL `https://rafid0.com/admin` plus the username and password (in person or by private message, never in a public channel).

@@ -41,7 +41,7 @@ require __DIR__ . '/includes/header.php';
         <div class="card pad">
           <h2 class="card-heading">Curriculum Vitae</h2>
           <ul class="file-list">
-            <li class="file-row"><span class="file-icon pdf"><?= e(strtoupper(file_ext($cvPath))) ?></span>
+            <li class="file-row"><span class="file-icon pdf"><?= e(file_badge($cvPath)) ?></span>
               <span class="file-meta"><strong><?= e(site_name()) ?> — CV</strong><small><?= e(human_size($cvSize)) ?></small></span>
               <a class="icon-btn sm" href="<?= e(media_url($cvPath)) ?>" download aria-label="Download CV"><?= icon('download') ?></a></li>
           </ul>
@@ -53,7 +53,7 @@ require __DIR__ . '/includes/header.php';
           <ul class="file-list">
             <?php foreach ($list as $d): ?>
               <li class="file-row">
-                <span class="file-icon <?= file_icon_class($d['file_path']) ?>"><?= e(strtoupper(file_ext($d['file_path']))) ?></span>
+                <span class="file-icon <?= file_icon_class($d['file_path']) ?>"><?= e(file_badge($d['file_path'])) ?></span>
                 <span class="file-meta"><strong><?= e($d['title']) ?></strong>
                   <small><?= e(trim(human_size((int) $d['file_size']) . ($d['description'] !== '' ? ' · ' . $d['description'] : ''))) ?></small></span>
                 <a class="icon-btn sm" href="<?= e(url('download.php?id=' . (int) $d['id'])) ?>" aria-label="Download <?= e($d['title']) ?>"><?= icon('download') ?></a>
@@ -69,9 +69,9 @@ require __DIR__ . '/includes/header.php';
             <?php foreach ($info['files'] as $f):
                 $name = $f['title'] !== '' ? $f['title'] : basename($f['file_path']); ?>
               <li class="file-row">
-                <span class="file-icon <?= file_icon_class($f['file_path']) ?>"><?= e(strtoupper(file_ext($f['file_path']))) ?></span>
+                <span class="file-icon <?= file_icon_class($f['file_path']) ?>"><?= e(file_badge($f['file_path'])) ?></span>
                 <span class="file-meta"><strong><?= e($name) ?></strong><small><?= e(human_size((int) $f['file_size'])) ?></small></span>
-                <a class="icon-btn sm" href="<?= e(media_url($f['file_path'])) ?>" download aria-label="Download <?= e($name) ?>"><?= icon('download') ?></a>
+                <a class="icon-btn sm" href="<?= e(media_url($f['file_path'])) ?>"<?= download_attrs($f['file_path']) ?> aria-label="Download <?= e($name) ?>"><?= icon('download') ?></a>
               </li>
             <?php endforeach; ?>
           </ul>

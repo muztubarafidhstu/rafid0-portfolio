@@ -45,13 +45,13 @@ $meta_image = $p['cover_image'];
 function doc_row(array $d, bool $download = true): string
 {
     $size = human_size((int) $d['file_size']);
-    if ($size === '' && strpos($d['file_path'], 'uploads/') === 0 && is_file(ROOT . '/' . $d['file_path'])) {
+    if ($size === '' && !is_external_url($d['file_path']) && strpos($d['file_path'], 'uploads/') === 0 && is_file(ROOT . '/' . $d['file_path'])) {
         $size = human_size((int) filesize(ROOT . '/' . $d['file_path']));
     }
     $name = $d['title'] !== '' ? $d['title'] : basename($d['file_path']);
-    return '<li class="file-row"><span class="file-icon ' . file_icon_class($d['file_path']) . '">' . e(strtoupper(file_ext($d['file_path']))) . '</span>'
+    return '<li class="file-row"><span class="file-icon ' . file_icon_class($d['file_path']) . '">' . e(file_badge($d['file_path'])) . '</span>'
         . '<span class="file-meta"><strong>' . e($name) . '</strong>' . ($size !== '' ? '<small>' . e($size) . '</small>' : '') . '</span>'
-        . '<a class="icon-btn sm" href="' . e(media_url($d['file_path'])) . '"' . ($download ? ' download' : ' target="_blank" rel="noopener"') . ' aria-label="Download ' . e($name) . '">' . icon('download') . '</a></li>';
+        . '<a class="icon-btn sm" href="' . e(media_url($d['file_path'])) . '"' . ($download ? download_attrs($d['file_path']) : ' target="_blank" rel="noopener"') . ' aria-label="Download ' . e($name) . '">' . icon('download') . '</a></li>';
 }
 
 require __DIR__ . '/includes/header.php';

@@ -275,9 +275,41 @@ function file_ext(string $path): string
     return strtolower(pathinfo($path, PATHINFO_EXTENSION));
 }
 
+function is_external_url(?string $path): bool
+{
+    return (bool) preg_match('~^https?://~i', (string) $path);
+}
+
+/** Short label shown on a file icon, e.g. PDF, ZIP, or LINK for a Google Drive link. */
+function file_badge(string $path): string
+{
+    $ext = is_external_url($path) ? strtolower(pathinfo((string) parse_url($path, PHP_URL_PATH), PATHINFO_EXTENSION)) : file_ext($path);
+    if ($ext === '' || strlen($ext) > 5 || !preg_match('/^[a-z0-9]+$/', $ext)) {
+        return is_external_url($path) ? 'LINK' : 'FILE';
+    }
+    return strtoupper($ext);
+}
+
+/** Attributes for a download link: real download for our files, new tab for outside links. */
+function download_attrs(string $path): string
+{
+    return is_external_url($path) ? ' target="_blank" rel="noopener"' : ' download';
+}
+
+/** Validate a pasted link (Google Drive, Dropbox, OneDrive…). Returns '' if not valid. */
+function clean_link(string $url): string
+{
+    $url = trim($url);
+    if ($url !== '' && !preg_match('~^https?://~i', $url)) {
+        $url = 'https://' . $url;
+    }
+    return filter_var($url, FILTER_VALIDATE_URL) ? $url : '';
+}
+
 function file_icon_class(string $path): string
 {
-    $ext = file_ext($path);
+    if (is_external_url($path) && file_badge($path) === 'LINK') return 'link';
+    $ext = strtolower(file_badge($path));
     if ($ext === 'pdf') return 'pdf';
     if (in_array($ext, ['xls', 'xlsx', 'csv'], true)) return 'sheet';
     if (in_array($ext, ['doc', 'docx', 'txt', 'md'], true)) return 'doc';
