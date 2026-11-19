@@ -91,7 +91,7 @@ admin_header('Site Settings', 'settings');
       <label class="field">Your name / site name<input type="text" name="site_name" value="<?= e(setting('site_name')) ?>" required></label>
       <label class="field">Job title<input type="text" name="site_title" value="<?= e(setting('site_title')) ?>" placeholder="R&D Engineer"></label>
     </div>
-    <label class="field">Username / also known as <small class="hint">Helps Google show your site when people search this name, e.g. rafid0. Use the same username on LinkedIn, GitHub and other profiles</small><input type="text" name="site_alias" value="<?= e(setting('site_alias')) ?>" placeholder="rafid0"></label>
+    <label class="field">Username / also known as <small class="hint">Separate several with commas. The first one appears in the page title. Helps Google show your site when people search any of these names, e.g. rafid0, muztubarafid, rafidhstu</small><input type="text" name="site_alias" value="<?= e(setting('site_alias')) ?>" placeholder="rafid0"></label>
     <label class="field">Site description <small class="hint">Shown in Google results and link previews</small><textarea name="meta_description" rows="2"><?= e(setting('meta_description')) ?></textarea></label>
     <label class="field">Footer text<input type="text" name="footer_text" value="<?= e(setting('footer_text')) ?>"></label>
     <div class="form-row two">

@@ -8,6 +8,7 @@
         <span class="brand-text"><strong><?= e(site_name()) ?></strong><small><?= e(setting('site_title')) ?></small></span>
       </a>
       <p class="muted"><?= e(setting('footer_text')) ?></p>
+      <?php if (setting('site_alias') !== ''): ?><p class="muted small">Also known as: <?= e(implode(', ', tags(setting('site_alias')))) ?></p><?php endif; ?>
       <div class="social-row">
         <?php foreach (social_links() as $s): ?>
           <a class="icon-btn" href="<?= e($s['url']) ?>" target="_blank" rel="noopener" aria-label="<?= e($s['label']) ?>"><?= icon($s['icon']) ?></a>

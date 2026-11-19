@@ -4,7 +4,8 @@ $page_title = $page_title ?? '';
 $active = $active ?? '';
 $__desc = $meta_description ?? setting('meta_description');
 $__img = $meta_image ?? setting('hero_image');
-$__alias = setting('site_alias');
+$__aliases = tags(setting('site_alias'));
+$__alias = $__aliases[0] ?? '';
 $__title = $page_title !== '' ? $page_title . ' — ' . site_name()
     : site_name() . ($__alias !== '' ? ' (' . $__alias . ')' : '') . ' — ' . setting('site_title');
 $__accent = setting('accent_color', '#22c55e');
@@ -39,12 +40,12 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
     $__same = array_values(array_filter(array_map(function ($s) { return $s['url']; }, social_links()), function ($u) { return strpos($u, 'http') === 0; }));
     $__person = ['@context' => 'https://schema.org', '@type' => 'Person', 'name' => site_name(), 'jobTitle' => setting('site_title'),
         'url' => absolute_url(), 'description' => excerpt($__desc, 300)];
-    if ($__alias !== '') $__person['alternateName'] = $__alias;
+    if ($__aliases) $__person['alternateName'] = count($__aliases) === 1 ? $__aliases[0] : $__aliases;
     if (setting('about_photo') !== '') $__person['image'] = absolute_url(setting('about_photo'));
     if ($__same) $__person['sameAs'] = $__same;
     if (setting('contact_location') !== '') $__person['address'] = ['@type' => 'PostalAddress', 'addressLocality' => setting('contact_location')];
     $__site = ['@context' => 'https://schema.org', '@type' => 'WebSite', 'name' => site_name() . ($__alias !== '' ? ' (' . $__alias . ')' : ''),
-        'alternateName' => $__alias !== '' ? $__alias : site_name(), 'url' => absolute_url()];
+        'alternateName' => $__aliases ? $__aliases : [site_name()], 'url' => absolute_url()];
 ?>
 <script type="application/ld+json"><?= json_encode([$__person, $__site], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
 <?php endif; ?>
