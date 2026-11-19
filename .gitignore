@@ -1,0 +1,9 @@
+# Site content created on the server — never commit (contains the database and admin password hash)
+data/*.sqlite
+data/*.sqlite-*
+data/config.php
+data/error.log
+uploads/images/*/
+uploads/videos/*/
+uploads/documents/*/
+.DS_Store

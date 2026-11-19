@@ -1,0 +1,44 @@
+# rafid0.com — Nginx rules (ONLY needed if the host uses Nginx without Apache/.htaccess)
+# Put inside the server { } block for rafid0.com. Adjust root and the PHP-FPM socket.
+
+server {
+    listen 443 ssl http2;
+    server_name rafid0.com www.rafid0.com;
+    root /var/www/rafid0.com/public_html;
+    index index.php;
+    client_max_body_size 260M;
+
+    # Private folders and hidden files
+    location ~ ^/(data|includes)(/|$)      { deny all; return 404; }
+    location ~ /\.(?!well-known)           { deny all; return 404; }
+    location ~* \.(sqlite|db|log|ini|md|sh)$ { deny all; return 404; }
+
+    # Never run scripts from uploads
+    location ^~ /uploads/ {
+        autoindex off;
+        location ~* \.(php|phtml|phar|pl|py|cgi|sh|html?|svg|js)$ { deny all; return 404; }
+        add_header X-Content-Type-Options nosniff;
+    }
+
+    location = /robots.txt  { rewrite ^ /robots.php last; }
+    location = /sitemap.xml { rewrite ^ /sitemap.php last; }
+    error_page 404 /404.php;
+
+    location / { try_files $uri $uri/ =404; }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;   # adjust
+    }
+
+    location ~* \.(css|js|svg|png|jpe?g|webp|gif|woff2?)$ { expires 30d; access_log off; }
+}
+
+server {
+    listen 80;
+    server_name rafid0.com www.rafid0.com;
+    return 301 https://rafid0.com$request_uri;
+}
