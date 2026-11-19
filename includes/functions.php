@@ -518,6 +518,10 @@ function store_upload(array $file, array $allowed = ['image', 'video', 'document
     if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
         throw new RuntimeException('Could not create the upload folder. Check that /uploads is writable.');
     }
+    // Some hosts create folders as private (0700), which blocks visitors (403). Make them public-readable.
+    for ($d = $dir; strlen($d) > strlen(UPLOAD_DIR); $d = dirname($d)) {
+        @chmod($d, 0755);
+    }
     $base = slugify(pathinfo($file['name'], PATHINFO_FILENAME));
     $base = substr($base, 0, 50);
     $name = $base . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
